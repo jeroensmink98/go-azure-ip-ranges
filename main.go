@@ -16,6 +16,7 @@ import (
 func main() {
 	// Azure Public IP Ranges Download page
 	const region = "westeurope"
+	const platform = "Azure"
 	url := "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
 	var client http.Client
 	resp, err := client.Get(url)
@@ -91,7 +92,7 @@ func main() {
 
 							for i := 0; i < len(ipRanges.Values); i++ {
 								// Only write the IPv4 addresses that are within our specified region
-								if ipRanges.Values[i].Properties.Region == region && ipRanges.Values[i].Properties.Platform == "Azure" {
+								if ipRanges.Values[i].Properties.Region == region && ipRanges.Values[i].Properties.Platform == platform {
 									for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
 										fmt.Println(ipRanges.Values[i].Properties.AddressPrefixes[j])
 									}
