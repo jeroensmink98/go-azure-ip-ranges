@@ -17,7 +17,8 @@ func main() {
 	// Azure Public IP Ranges Download page
 	const region = "westeurope"
 	const platform = "Azure"
-	url := "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
+	const url = "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
+
 	var client http.Client
 	resp, err := client.Get(url)
 	if err != nil {
