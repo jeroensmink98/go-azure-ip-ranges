@@ -19,6 +19,14 @@ func main() {
 	const platform = "Azure"
 	const url = "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
 
+	file, err := os.Create("output.txt")
+
+	if err != nil {
+		panic(err)
+	}
+
+	defer file.Close()
+
 	var client http.Client
 	resp, err := client.Get(url)
 	if err != nil {
@@ -93,8 +101,18 @@ func main() {
 
 							for i := 0; i < len(ipRanges.Values); i++ {
 								// Only write the IPv4 addresses that are within our specified region
+								// Todo: Add function to write all IP's instead of a single region
 								if ipRanges.Values[i].Properties.Region == region && ipRanges.Values[i].Properties.Platform == platform {
 									for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
+										s := ipRanges.Values[i].Properties.AddressPrefixes[j]
+										s += "\n"
+
+										_, err := file.WriteString(s)
+
+										if err != nil {
+											panic(err)
+										}
+
 										fmt.Println(ipRanges.Values[i].Properties.AddressPrefixes[j])
 									}
 								}
