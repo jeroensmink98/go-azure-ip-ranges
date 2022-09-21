@@ -15,12 +15,11 @@ import (
 
 func main() {
 	// Azure Public IP Ranges Download page
-	const region = "westeurope"
+	region := "westeurope"
 	const platform = "Azure"
 	const url = "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
-
-	file, err := os.Create("output.txt")
-
+	filename := "ip-ranges-" + region + ".txt"
+	file, err := os.Create(filename)
 	if err != nil {
 		panic(err)
 	}
