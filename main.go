@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -106,13 +105,8 @@ func main() {
 										s := ipRanges.Values[i].Properties.AddressPrefixes[j]
 										s += "\n"
 
-										_, err := file.WriteString(s)
+										writeToFile(s, *file)
 
-										if err != nil {
-											panic(err)
-										}
-
-										fmt.Println(ipRanges.Values[i].Properties.AddressPrefixes[j])
 									}
 								}
 							}
@@ -127,4 +121,8 @@ func main() {
 		}
 		f(doc)
 	}
+}
+
+func writeToFile(content string, f os.File) {
+	f.WriteString(content)
 }
