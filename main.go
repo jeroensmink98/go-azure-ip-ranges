@@ -2,23 +2,76 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/net/html"
 )
 
+type AzureIpRange struct {
+	ChangeNumber int    `json:"changeNumber"`
+	Cloud        string `json:"cloud"`
+	Values       []struct {
+		Name       string `json:"name"`
+		ID         string `json:"id"`
+		Properties struct {
+			ChangeNumber    int         `json:"changeNumber"`
+			Region          string      `json:"region"`
+			RegionID        int         `json:"regionId"`
+			Platform        string      `json:"platform"`
+			SystemService   string      `json:"systemService"`
+			AddressPrefixes []string    `json:"addressPrefixes"`
+			NetworkFeatures interface{} `json:"networkFeatures"`
+		} `json:"properties"`
+	} `json:"values"`
+}
+
+func outputFilename(cWeek int, cYear int, region string) *string {
+	filename := ""
+	filename += "ip-ranges-w"
+	filename += strconv.Itoa(cWeek)
+	filename += "y"
+	filename += strconv.Itoa(cYear)
+	filename += "-"
+
+	if region == "" {
+		region = "no-region"
+	}
+
+	filename += region
+	filename += ".txt"
+	return &filename
+}
+
+func writeToFile(content string, f os.File) {
+	f.WriteString(content)
+}
+
 func main() {
-	// Azure Public IP Ranges Download page
-	region := "westeurope"
-	const platform = "Azure"
-	const url = "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
-	filename := "ip-ranges-" + region + ".txt"
-	file, err := os.Create(filename)
+	// Parse command line arguments
+	region := flag.String("region", "", "filter on Azure region")
+	//systemService := flag.String("service", "", "filter on Azure service")
+
+	if *region == "" {
+
+	}
+	flag.Parse()
+
+	tn := time.Now().UTC()
+
+	currentYear, currentWeek := tn.ISOWeek()
+	url := "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
+
+	filename := outputFilename(currentWeek, currentYear, *region)
+	file, err := os.Create(*filename)
+
 	if err != nil {
 		panic(err)
 	}
@@ -65,24 +118,6 @@ func main() {
 							//Write output to a JSON File
 							err = ioutil.WriteFile("AzurePublicIp.json", body, 0644)
 
-							type AzureIpRange struct {
-								ChangeNumber int    `json:"changeNumber"`
-								Cloud        string `json:"cloud"`
-								Values       []struct {
-									Name       string `json:"name"`
-									ID         string `json:"id"`
-									Properties struct {
-										ChangeNumber    int         `json:"changeNumber"`
-										Region          string      `json:"region"`
-										RegionID        int         `json:"regionId"`
-										Platform        string      `json:"platform"`
-										SystemService   string      `json:"systemService"`
-										AddressPrefixes []string    `json:"addressPrefixes"`
-										NetworkFeatures interface{} `json:"networkFeatures"`
-									} `json:"properties"`
-								} `json:"values"`
-							}
-
 							fileContent, err := os.Open("./AzurePublicIp.json")
 							if err != nil {
 								log.Fatal(err)
@@ -98,13 +133,14 @@ func main() {
 							json.Unmarshal([]byte(byteResult), &ipRanges)
 
 							for i := 0; i < len(ipRanges.Values); i++ {
-								// Only write the IPv4 addresses that are within our specified region
-								// Todo: Add function to write all IP's instead of a single region
-								if ipRanges.Values[i].Properties.Region == region && ipRanges.Values[i].Properties.Platform == platform {
+								if ipRanges.Values[i].Properties.Region == *region {
 									for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
-										s := ipRanges.Values[i].Properties.AddressPrefixes[j]
-										s += "\n"
 
+										ip := strings.Split(ipRanges.Values[i].Properties.AddressPrefixes[j], "/")
+										ip[0] += "\n"
+
+										// Create file content string
+										s := ip[0]
 										writeToFile(s, *file)
 
 									}
@@ -121,8 +157,4 @@ func main() {
 		}
 		f(doc)
 	}
-}
-
-func writeToFile(content string, f os.File) {
-	f.WriteString(content)
 }

@@ -1,0 +1,22 @@
+name: GitHub Actions Demo
+on:
+  push:
+    branches:
+      - master
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.18.4"
+
+      - name: Build win-amd64
+        run: GOOS=windows GOARCH=amd64 go build -o bin/az-ip-ranges.exe main.go
+
+      - name: Build linux-amd64
+        run: GOOS=linux GOARCH=amd64 go build -o bin/az-ip-ranges main.go
