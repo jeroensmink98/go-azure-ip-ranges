@@ -50,6 +50,10 @@ func outputFilename(cWeek int, cYear int, region string) *string {
 	return &filename
 }
 
+func writeToFile(content string, f os.File) {
+	f.WriteString(content)
+}
+
 func main() {
 	// Parse command line arguments
 	region := flag.String("region", "", "filter on Azure region")
@@ -153,8 +157,4 @@ func main() {
 		}
 		f(doc)
 	}
-}
-
-func writeToFile(content string, f os.File) {
-	f.WriteString(content)
 }
