@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -15,6 +14,24 @@ import (
 
 	"golang.org/x/net/html"
 )
+
+type AzureIpRange struct {
+	ChangeNumber int    `json:"changeNumber"`
+	Cloud        string `json:"cloud"`
+	Values       []struct {
+		Name       string `json:"name"`
+		ID         string `json:"id"`
+		Properties struct {
+			ChangeNumber    int         `json:"changeNumber"`
+			Region          string      `json:"region"`
+			RegionID        int         `json:"regionId"`
+			Platform        string      `json:"platform"`
+			SystemService   string      `json:"systemService"`
+			AddressPrefixes []string    `json:"addressPrefixes"`
+			NetworkFeatures interface{} `json:"networkFeatures"`
+		} `json:"properties"`
+	} `json:"values"`
+}
 
 func outputFilename(cWeek int, cYear int, region string) *string {
 	filename := ""
@@ -36,12 +53,13 @@ func outputFilename(cWeek int, cYear int, region string) *string {
 func main() {
 	// Parse command line arguments
 	region := flag.String("region", "", "filter on Azure region")
+	//systemService := flag.String("service", "", "filter on Azure service")
+
 	if *region == "" {
 
 	}
 	flag.Parse()
 
-	fmt.Println(*region)
 	tn := time.Now().UTC()
 
 	currentYear, currentWeek := tn.ISOWeek()
@@ -96,24 +114,6 @@ func main() {
 							//Write output to a JSON File
 							err = ioutil.WriteFile("AzurePublicIp.json", body, 0644)
 
-							type AzureIpRange struct {
-								ChangeNumber int    `json:"changeNumber"`
-								Cloud        string `json:"cloud"`
-								Values       []struct {
-									Name       string `json:"name"`
-									ID         string `json:"id"`
-									Properties struct {
-										ChangeNumber    int         `json:"changeNumber"`
-										Region          string      `json:"region"`
-										RegionID        int         `json:"regionId"`
-										Platform        string      `json:"platform"`
-										SystemService   string      `json:"systemService"`
-										AddressPrefixes []string    `json:"addressPrefixes"`
-										NetworkFeatures interface{} `json:"networkFeatures"`
-									} `json:"properties"`
-								} `json:"values"`
-							}
-
 							fileContent, err := os.Open("./AzurePublicIp.json")
 							if err != nil {
 								log.Fatal(err)
@@ -129,18 +129,14 @@ func main() {
 							json.Unmarshal([]byte(byteResult), &ipRanges)
 
 							for i := 0; i < len(ipRanges.Values); i++ {
-
-								fmt.Println(ipRanges.Values[i].Properties.SystemService)
-								// Only write the IPv4 addresses that are within our specified region
-								// Add function to write all IP's instead of a single region
-
 								if ipRanges.Values[i].Properties.Region == *region {
 									for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
 
-										// Create file content string
-										s := ipRanges.Values[i].Properties.AddressPrefixes[j]
-										s += "\n"
+										ip := strings.Split(ipRanges.Values[i].Properties.AddressPrefixes[j], "/")
+										ip[0] += "\n"
 
+										// Create file content string
+										s := ip[0]
 										writeToFile(s, *file)
 
 									}
