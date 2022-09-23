@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -15,17 +16,39 @@ import (
 	"golang.org/x/net/html"
 )
 
+func outputFilename(cWeek int, cYear int, region string) *string {
+	filename := ""
+	filename += "ip-ranges-w"
+	filename += strconv.Itoa(cWeek)
+	filename += "y"
+	filename += strconv.Itoa(cYear)
+	filename += "-"
+
+	if region == "" {
+		region = "no-region"
+	}
+
+	filename += region
+	filename += ".txt"
+	return &filename
+}
+
 func main() {
+	// Parse command line arguments
+	region := flag.String("region", "", "filter on Azure region")
+	if *region == "" {
+
+	}
+	flag.Parse()
+
+	fmt.Println(*region)
 	tn := time.Now().UTC()
 
 	currentYear, currentWeek := tn.ISOWeek()
-	// Azure Public IP Ranges Download page
-	region := "westeurope"
-	platform := "Azure"
 	url := "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
 
-	filename := "ip-ranges-w" + strconv.Itoa(currentWeek) + "y" + strconv.Itoa(currentYear) + "-" + region + ".txt"
-	file, err := os.Create(filename)
+	filename := outputFilename(currentWeek, currentYear, *region)
+	file, err := os.Create(*filename)
 
 	if err != nil {
 		panic(err)
@@ -109,8 +132,9 @@ func main() {
 
 								fmt.Println(ipRanges.Values[i].Properties.SystemService)
 								// Only write the IPv4 addresses that are within our specified region
-								// Todo: Add function to write all IP's instead of a single region
-								if ipRanges.Values[i].Properties.Region == region && ipRanges.Values[i].Properties.Platform == platform {
+								// Add function to write all IP's instead of a single region
+
+								if ipRanges.Values[i].Properties.Region == *region {
 									for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
 
 										// Create file content string
