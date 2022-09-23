@@ -2,23 +2,31 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 
 	"golang.org/x/net/html"
 )
 
 func main() {
+	tn := time.Now().UTC()
+
+	currentYear, currentWeek := tn.ISOWeek()
 	// Azure Public IP Ranges Download page
 	region := "westeurope"
-	const platform = "Azure"
-	const url = "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
-	filename := "ip-ranges-" + region + ".txt"
+	platform := "Azure"
+	url := "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
+
+	filename := "ip-ranges-w" + strconv.Itoa(currentWeek) + "y" + strconv.Itoa(currentYear) + "-" + region + ".txt"
 	file, err := os.Create(filename)
+
 	if err != nil {
 		panic(err)
 	}
@@ -98,10 +106,14 @@ func main() {
 							json.Unmarshal([]byte(byteResult), &ipRanges)
 
 							for i := 0; i < len(ipRanges.Values); i++ {
+
+								fmt.Println(ipRanges.Values[i].Properties.SystemService)
 								// Only write the IPv4 addresses that are within our specified region
 								// Todo: Add function to write all IP's instead of a single region
 								if ipRanges.Values[i].Properties.Region == region && ipRanges.Values[i].Properties.Platform == platform {
 									for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
+
+										// Create file content string
 										s := ipRanges.Values[i].Properties.AddressPrefixes[j]
 										s += "\n"
 
