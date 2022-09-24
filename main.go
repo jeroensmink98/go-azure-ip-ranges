@@ -133,7 +133,7 @@ func main() {
 							json.Unmarshal([]byte(byteResult), &ipRanges)
 
 							for i := 0; i < len(ipRanges.Values); i++ {
-								if ipRanges.Values[i].Properties.Region == *region {
+								if ipRanges.Values[i].Properties.Region == *region || ipRanges.Values[i].Properties.Region == "" {
 									for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
 
 										ip := strings.Split(ipRanges.Values[i].Properties.AddressPrefixes[j], "/")
