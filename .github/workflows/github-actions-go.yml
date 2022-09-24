@@ -1,4 +1,4 @@
-name: GitHub Actions Demo
+name: Golang Azure IP Ranges
 on:
   push:
     branches:
