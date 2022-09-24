@@ -97,10 +97,8 @@ func main() {
 			log.Fatal(err)
 		}
 
-		bodyString := string(bodyBytes)
-
 		// Parse HTTP response to HTML object
-		doc, err := html.Parse(strings.NewReader(bodyString))
+		doc, err := html.Parse(strings.NewReader(string(bodyBytes)))
 
 		var f func(*html.Node)
 		f = func(n *html.Node) {
