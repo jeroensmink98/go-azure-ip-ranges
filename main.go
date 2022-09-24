@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,21 +17,25 @@ import (
 )
 
 type AzureIpRange struct {
-	ChangeNumber int    `json:"changeNumber"`
-	Cloud        string `json:"cloud"`
-	Values       []struct {
-		Name       string `json:"name"`
-		ID         string `json:"id"`
-		Properties struct {
-			ChangeNumber    int         `json:"changeNumber"`
-			Region          string      `json:"region"`
-			RegionID        int         `json:"regionId"`
-			Platform        string      `json:"platform"`
-			SystemService   string      `json:"systemService"`
-			AddressPrefixes []string    `json:"addressPrefixes"`
-			NetworkFeatures interface{} `json:"networkFeatures"`
-		} `json:"properties"`
-	} `json:"values"`
+	ChangeNumber int     `json:"changeNumber"`
+	Cloud        string  `json:"cloud"`
+	Values       []Value `json:"values"`
+}
+
+type Value struct {
+	Name       string     `json:"name"`
+	ID         string     `json:"id"`
+	Properties Properties `json:"properties"`
+}
+
+type Properties struct {
+	ChangeNumber    int      `json:"changeNumber"`
+	Region          string   `json:"region"`
+	RegionID        int      `json:"regionId"`
+	Platform        string   `json:"platform"`
+	SystemService   string   `json:"systemService"`
+	AddressPrefixes []string `json:"addressPrefixes"`
+	NetworkFeatures []string `json:"networkFeatures"`
 }
 
 func outputFilename(cWeek int, cYear int, region string) *string {
@@ -151,6 +156,7 @@ func main() {
 				}
 			}
 			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				fmt.Println(c.Type)
 				f(c)
 			}
 		}
