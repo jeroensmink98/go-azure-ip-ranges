@@ -54,6 +54,10 @@ func writeToFile(content string, f os.File) {
 	f.WriteString(content)
 }
 
+func formatIpv4(ip string) string {
+	return (strings.Split(ip, "/")[0] + "\n")
+}
+
 func main() {
 	// Parse command line arguments
 	region := flag.String("region", "", "filter on Azure region")
@@ -136,12 +140,8 @@ func main() {
 								if ipRanges.Values[i].Properties.Region == *region || ipRanges.Values[i].Properties.Region == "" {
 									for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
 
-										ip := strings.Split(ipRanges.Values[i].Properties.AddressPrefixes[j], "/")
-										ip[0] += "\n"
-
 										// Create file content string
-										s := ip[0]
-										writeToFile(s, *file)
+										writeToFile(formatIpv4(ipRanges.Values[i].Properties.AddressPrefixes[j]), *file)
 
 									}
 								}
