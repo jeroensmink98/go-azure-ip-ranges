@@ -1,6 +1,6 @@
 # Go Azure IP Ranges
 
-Fetch Azure IP Ranges for a given week and write them to a file
+Fetch Azure IP Ranges for the current week and write them to a file
 
 ![Build](https://github.com/jeroensmink98/go-azure-ip-ranges/actions/workflows/github-actions-go.yml/badge.svg)
 
