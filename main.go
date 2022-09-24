@@ -54,6 +54,7 @@ func writeToFile(content string, f os.File) {
 	f.WriteString(content)
 }
 
+// This function removes the subnet mask from the IPv4 Address
 func formatIpv4(ip string) string {
 	return (strings.Split(ip, "/")[0] + "\n")
 }
