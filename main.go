@@ -110,7 +110,7 @@ func main() {
 
 						// Check if the href attr contains the "ServiceTags_Public" value
 						if strings.Contains(a.Val, "ServiceTags_Public") {
-							// Make HTTP request
+							// Make HTTP request to the href value of the <a>
 							res, err := http.Get(a.Val)
 
 							body, err := ioutil.ReadAll(res.Body)
