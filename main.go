@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -111,52 +110,51 @@ func main() {
 			if n.Type == html.ElementNode && n.Data == "a" {
 				for _, a := range n.Attr {
 					// Fetch the href attribute from all <a> tags
-					if a.Key == "href" {
+					if a.Key == "href" && strings.Contains(a.Val, "ServiceTags_Public") {
 
 						// Check if the href attr contains the "ServiceTags_Public" value
-						if strings.Contains(a.Val, "ServiceTags_Public") {
-							// Make HTTP request to the href value of the <a>
-							res, err := http.Get(a.Val)
 
-							body, err := ioutil.ReadAll(res.Body)
-							if err != nil {
-								panic(err.Error())
-							}
+						// Make HTTP request to the href value of the <a>
+						res, err := http.Get(a.Val)
 
-							//Write output to a JSON File
-							err = ioutil.WriteFile("AzurePublicIp.json", body, 0644)
+						body, err := ioutil.ReadAll(res.Body)
+						if err != nil {
+							panic(err.Error())
+						}
 
-							fileContent, err := os.Open("./AzurePublicIp.json")
-							if err != nil {
-								log.Fatal(err)
-								return
-							}
+						//Write output to a JSON File
+						err = ioutil.WriteFile("AzurePublicIp.json", body, 0644)
 
-							defer fileContent.Close()
+						fileContent, err := os.Open("./AzurePublicIp.json")
+						if err != nil {
+							log.Fatal(err)
+							return
+						}
 
-							byteResult, _ := ioutil.ReadAll(fileContent)
+						defer fileContent.Close()
 
-							var ipRanges AzureIpRange
+						byteResult, _ := ioutil.ReadAll(fileContent)
 
-							json.Unmarshal([]byte(byteResult), &ipRanges)
+						var ipRanges AzureIpRange
 
-							for i := 0; i < len(ipRanges.Values); i++ {
-								if ipRanges.Values[i].Properties.Region == *region || ipRanges.Values[i].Properties.Region == "" {
-									for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
+						json.Unmarshal([]byte(byteResult), &ipRanges)
 
-										// Create file content string
-										writeToFile(formatIpv4(ipRanges.Values[i].Properties.AddressPrefixes[j]), *file)
+						for i := 0; i < len(ipRanges.Values); i++ {
+							if ipRanges.Values[i].Properties.Region == *region || ipRanges.Values[i].Properties.Region == "" {
+								for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
 
-									}
+									// Create file content string
+									writeToFile(formatIpv4(ipRanges.Values[i].Properties.AddressPrefixes[j]), *file)
+
 								}
 							}
 						}
+
 						break
 					}
 				}
 			}
 			for c := n.FirstChild; c != nil; c = c.NextSibling {
-				fmt.Println(c.Type)
 				f(c)
 			}
 		}
