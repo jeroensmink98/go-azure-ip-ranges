@@ -47,3 +47,4 @@ The filename will contain `no-region` to mark that file as not having specified 
 - [ ] Add filter for specific Azure Service `systemService`
 - [x] Add option to query all regions
 - [ ] Add option to query all Azure services
+- [ ] Sign `.exe` build in CI process
