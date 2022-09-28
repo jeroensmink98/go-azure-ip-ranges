@@ -63,14 +63,15 @@ func formatIpv4(ip string) string {
 	return (strings.Split(ip, "/")[0] + "\n")
 }
 
+func matchSystemFilter(filter string) {
+
+}
+
 func main() {
 	// Parse command line arguments
 	region := flag.String("region", "", "filter on Azure region")
-	//systemService := flag.String("service", "", "filter on Azure service")
+	service := flag.String("service", "", "filter on Azure service")
 
-	if *region == "" {
-
-	}
 	flag.Parse()
 
 	tn := time.Now().UTC()
@@ -111,9 +112,6 @@ func main() {
 				for _, a := range n.Attr {
 					// Fetch the href attribute from all <a> tags
 					if a.Key == "href" && strings.Contains(a.Val, "ServiceTags_Public") {
-
-						// Check if the href attr contains the "ServiceTags_Public" value
-
 						// Make HTTP request to the href value of the <a>
 						res, err := http.Get(a.Val)
 
@@ -140,11 +138,19 @@ func main() {
 						json.Unmarshal([]byte(byteResult), &ipRanges)
 
 						for i := 0; i < len(ipRanges.Values); i++ {
-							if ipRanges.Values[i].Properties.Region == *region || ipRanges.Values[i].Properties.Region == "" {
+							// Only add values that match our region filter
+							if ipRanges.Values[i].Properties.Region == *region {
 								for j := 0; j < len(ipRanges.Values[i].Properties.AddressPrefixes); j++ {
 
-									// Create file content string
-									writeToFile(formatIpv4(ipRanges.Values[i].Properties.AddressPrefixes[j]), *file)
+									if *service != "" {
+										if ipRanges.Values[i].Properties.SystemService == *service {
+											// Create file content string
+											writeToFile(formatIpv4(ipRanges.Values[i].Properties.AddressPrefixes[j]), *file)
+										}
+									} else {
+										// Create file content string
+										writeToFile(formatIpv4(ipRanges.Values[i].Properties.AddressPrefixes[j]), *file)
+									}
 
 								}
 							}
