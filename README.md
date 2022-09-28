@@ -1,6 +1,6 @@
 # Go Azure IP Ranges
 
-Fetch Azure IP Ranges for a given week and write them to a file
+Fetch Azure IP Ranges for the current week and write them to a file
 
 ![Build](https://github.com/jeroensmink98/go-azure-ip-ranges/actions/workflows/github-actions-go.yml/badge.svg)
 
@@ -44,6 +44,7 @@ The filename will contain `no-region` to mark that file as not having specified 
 - [x] Add filter for Region and Azure Platform
 - [ ] Make CLI tool from application
 - [ ] Read from HTTP response instead of local file
-- [ ] Add filter for specific Azure Service `systemService`
+- [x] Add filter for specific Azure Service `systemService`
 - [x] Add option to query all regions
-- [ ] Add option to query all Azure services
+- [ ] Add check for giving valid region and service
+- [ ] Sign `.exe` build in CI process
