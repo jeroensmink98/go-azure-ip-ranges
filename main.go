@@ -37,7 +37,7 @@ type Properties struct {
 	NetworkFeatures []string `json:"networkFeatures"`
 }
 
-func outputFilename(cWeek int, cYear int, region string) *string {
+func outputFilename(cWeek int, cYear int, region string, service string) *string {
 	filename := ""
 	filename += "ip-ranges-w"
 	filename += strconv.Itoa(cWeek)
@@ -49,7 +49,13 @@ func outputFilename(cWeek int, cYear int, region string) *string {
 		region = "no-region"
 	}
 
+	if service == "" {
+		service = "no-service"
+	}
+
 	filename += region
+	filename += "-"
+	filename += service
 	filename += ".txt"
 	return &filename
 }
@@ -79,7 +85,7 @@ func main() {
 	currentYear, currentWeek := tn.ISOWeek()
 	url := "https://www.microsoft.com/en-us/download/confirmation.aspx?id=56519"
 
-	filename := outputFilename(currentWeek, currentYear, *region)
+	filename := outputFilename(currentWeek, currentYear, *region, *service)
 	file, err := os.Create(*filename)
 
 	if err != nil {
@@ -155,7 +161,6 @@ func main() {
 								}
 							}
 						}
-
 						break
 					}
 				}
